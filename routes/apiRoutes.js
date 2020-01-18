@@ -1,59 +1,42 @@
-//var path = require('path');
-// ===============================================================================
-// LOAD DATA
-// We are linking our routes to a series of "data" sources.
-// These data sources hold arrays of information on table-data, waitinglist, etc.
-// ===============================================================================
-
 var friends = require("../data/friends.js");
 
-// ===============================================================================
-// ROUTING
-// ===============================================================================
-
 module.exports = function(app) {
-  // API GET Requests
-  // Below code handles when users "visit" a page.
-  // In each of the below cases when a user visits a link
-  // (ex: localhost:PORT/api/admin... they are shown a JSON of the data in the table)
-  // ---------------------------------------------------------------------------
 
   app.get("/api/friends", function(req, res) {
     res.json(friends);
   });
 
   app.post('/api/friends', function(req, res) {
-		// Capture the user input object
+		//Assign the input from the user
 		var userInput = req.body;
-
 		var userResponses = userInput.scores;
 
 		// Compute best friend match
 		var matchName = '';
 		var matchImage = '';
-		var totalDifference = 10000; // Make the initial value big for comparison
+		var difference = 10000; 
 
-		// Examine all existing friends in the list
+		//Traversing through the friends array
 		for (var i = 0; i < friends.length; i++) {
 
-			// Compute differenes for each question
+			//Find the differences between the user and the avainable matches
 			var diff = 0;
 			for (var j = 0; j < userResponses.length; j++) {
 				diff += Math.abs(friends[i].scores[j] - userResponses[j]);
 			}
 
-			// If lowest difference, record the friend match
-			if (diff < totalDifference) {
-				totalDifference = diff;
+			//If lowest difference, record the match
+			if (diff < difference) {
+				difference = diff;
 				matchName = friends[i].name;
 				matchImage = friends[i].image;
 			}
 		}
 
-		// Add new user
+		//Adds user to the friends array
 		friends.push(userInput);
 
-		// Send appropriate response
+		//Send appropriate response
 		res.json({status: 'OK', matchName: matchName, matchImage: matchImage});
 	});
 };
